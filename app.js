@@ -6,7 +6,7 @@ var exec = require('child_process').exec;
 var arg1 = 'hello';
 var arg2 = 'world';
 var filename = 'Hashing_KNN.py'
-
+//test
 
 
 exec('python' + ' ' + filename + ' ' + arg1 + ' ' + arg2, function (err, stdout, stderr) {
