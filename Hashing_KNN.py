@@ -126,7 +126,7 @@ Wireless_Test=json.loads(Wireless_Test)
 #print(Wireless_Test)
 Wireless_Test_hash = np.array([])
 for beacon_id, RSSI in Wireless_Test.items():
-    RSSI=int(RSSI)
+    RSSI=float(RSSI)
     hash_ = text_hash(beacon_id, RSSI)
     if len(Wireless_Test_hash) < 1:
         Wireless_Test_hash = hash_  # 因為0和512長度 不能相加
