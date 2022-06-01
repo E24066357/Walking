@@ -53,7 +53,8 @@ var clientHandler = function (socket) {
     //console.log(Rssi.length);
     beacon_int = parseInt(numStr);
     Rssi_int = parseInt(Rssi);
-    Rssi_int = (Rssi_int + 85) / (-45 + 85);
+    console.log(beacon_int, Rssi_int);
+    Rssi_int = (Rssi_int + 95) / (-36 + 95);
     if (isNaN(Rssi_int)) {
       console.log(beacon_int);
       console.log("NAN");
@@ -66,27 +67,27 @@ var clientHandler = function (socket) {
 
     //console.log(Beacon_RSSi);
     if (full(buffer)) {
-      count++;
+      //count++;
       Beacon_RSSi = `{q"Beacon_1q":q"${buffer[0]}q",q"Beacon_2q":q"${buffer[1]}q",q"Beacon_3q":q"${buffer[2]}q",q"Beacon_4q":q"${buffer[3]}q",q"Beacon_5q":q"${buffer[4]}q",q"Beacon_7q":q"${buffer[5]}q"}`;
       //console.log(Beacon_RSSi);
       //console.log(count);
-      if (count == 6) {
-        exec('python' + ' ' + filename + ' ' + Beacon_RSSi, function (err, stdout, stderr) {
-          if (err) {
-            console.log('stderr', err);
-          }
-          if (stdout) {
-            console.log('output', stdout);
-            toclient = stdout;
-            //socket.write(toclient);
-          }
-          //buffer = ['0', '0', '0', '0', '0', '0'];
-          //count = 0;
-        });
-        buffer = ['0', '0', '0', '0', '0', '0'];
-        count = 0;
+      //if (count == 6) {
+      exec('python' + ' ' + filename + ' ' + Beacon_RSSi, function (err, stdout, stderr) {
+        if (err) {
+          console.log('stderr', err);
+        }
+        if (stdout) {
+          console.log('output', stdout);
+          toclient = stdout;
+          //socket.write(toclient);
+        }
+        //buffer = ['0', '0', '0', '0', '0', '0'];
+        //count = 0;
+      });
+      buffer = ['0', '0', '0', '0', '0', '0'];
+      //count = 0;
 
-      }
+      //}
 
     }
 
