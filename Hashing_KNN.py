@@ -16,9 +16,9 @@ import hashlib
 import math
 from statsmodels.tsa.api import ExponentialSmoothing, Holt, SimpleExpSmoothing
 import sys
-for i in range(len(sys.argv)):
-    sys.argv[i] = sys.argv[i]+'123'
-    print(sys.argv[i])
+import shlex
+#a=sys.argv[1]
+#print("yy",a,"yy")
 freewalk = [
     'freewalk_1',
 ]
@@ -77,8 +77,8 @@ Wireless_Train = pd.read_csv(join(wireless_path, 'wireless_training_set.csv'))
 
 list_of_Wireless_Train_hash = []
 train_label = []
-print(Wireless_Train.shape)
-print(len(Wireless_Train))
+#print(Wireless_Train.shape)
+#print(len(Wireless_Train))
 for i in range(len(Wireless_Train)):
     Wireless_Train_row = Wireless_Train.iloc[i].to_dict()
     Wireless_Train_row_label = Wireless_Train_row['label']
@@ -116,17 +116,24 @@ predict_label = []
 
 # Wireless_Test = pd.read_csv(
 #    join(f'./walk_data/wireless_fingerprint_avg_10_7_beacon_rate_10.csv'))
-Wireless_Test = {'Beacon_1': 0.594202899, 'Beacon_2': 0.710144928, 'Beacon_3': 0.260869565,
-                 'Beacon_4': 0.449275362, 'Beacon_5': 0.275362319,  'Beacon_7': 0.333333333, }
+#Wireless_Test = {'Beacon_1': 0.594202899, 'Beacon_2': 0.710144928, 'Beacon_3': 0.260869565,
+#               'Beacon_4': 0.449275362, 'Beacon_5': 0.275362319,  'Beacon_7': 0.333333333, }
+
+args=str(sys.argv[1])
+Wireless_Test=args.replace("q","\"")
+#print(Wireless_Test)
+Wireless_Test=json.loads(Wireless_Test)
+#print(Wireless_Test)
 Wireless_Test_hash = np.array([])
 for beacon_id, RSSI in Wireless_Test.items():
+    RSSI=float(RSSI)
     hash_ = text_hash(beacon_id, RSSI)
     if len(Wireless_Test_hash) < 1:
         Wireless_Test_hash = hash_  # 因為0和512長度 不能相加
     else:
         Wireless_Test_hash = Wireless_Test_hash + hash_
 Wireless_Test_hash = signed_encode(Wireless_Test_hash)
-print(Wireless_Test_hash)
+#print(Wireless_Test_hash)
 '''
 for j in range(len(Wireless_Test)):
     # Device1
