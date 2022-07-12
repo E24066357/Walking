@@ -177,6 +177,9 @@ for i in range(len(voter)):
     print(voter[i])
     vote[int(voter[i])] += k_top_similarity[i]
 '''
+#傳1.這次預測的位置 2.各候選位置的得票數  3.(weight_map) 給particle filter
+#particle filter 回傳1.final position  2.當下的weight_map   
+#把final position給server   
 # print(k_top_similarity)
 # print(voter)
 
@@ -185,4 +188,4 @@ for i in range(len(voter)):
 predict_label.append(max(voter, key=voter.count))  # 票票等值
 # predict_label.append(vote.index(max(vote))) # 票票不等值 similarity 為權重
 #print("Ground Truth :", Wireless_Test_row_label)
-print("predict_label :", max(voter, key=voter.count))
+print("predict position :", max(voter, key=voter.count))
