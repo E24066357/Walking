@@ -2,6 +2,7 @@ from ctypes import *
 import random
 from os import listdir
 from os.path import isfile, isdir, join
+from socket import PF_CAN
 import time
 from queue import Queue
 from collections import defaultdict
@@ -114,16 +115,14 @@ test_label = []
 predict_label = []
 
 
-# Wireless_Test = pd.read_csv(
-#    join(f'./walk_data/wireless_fingerprint_avg_10_7_beacon_rate_10.csv'))
-#Wireless_Test = {'Beacon_1': 0.594202899, 'Beacon_2': 0.710144928, 'Beacon_3': 0.260869565,
-#               'Beacon_4': 0.449275362, 'Beacon_5': 0.275362319,  'Beacon_7': 0.333333333, }
 
-args=str(sys.argv[1])
-Wireless_Test=args.replace("q","\"")
-#print(Wireless_Test)
-Wireless_Test=json.loads(Wireless_Test)
-#print(Wireless_Test)
+Wireless_Test = {'Beacon_1': 0.594202899, 'Beacon_2': 0.710144928, 'Beacon_3': 0.260869565,
+             'Beacon_4': 0.449275362, 'Beacon_5': 0.275362319,  'Beacon_7': 0.333333333, }
+
+#args=str(sys.argv[1])
+#Wireless_Test=args.replace("q","\"")
+#Wireless_Test=json.loads(Wireless_Test)
+
 Wireless_Test_hash = np.array([])
 for beacon_id, RSSI in Wireless_Test.items():
     RSSI=float(RSSI)
@@ -166,17 +165,28 @@ for k in range(len(list_of_Wireless_Train_hash)):
         voter[k_top_similarity.index(
             min(k_top_similarity))] = train_label[k]
 
-# for m in range(len(voter_device2)):
-    # voter.append(voter_device2[m])
 
-# 將 similarity 做為 voter 的加權
+
+dict={}
+for key in voter:
+    dict[key]=dict.get(key,0)+1
+print("aa")
 '''
-vote = [0.0]*42
-print(len(vote))
-for i in range(len(voter)):
-    print(voter[i])
-    vote[int(voter[i])] += k_top_similarity[i]
+m=0
+import imptest as im
+m=im.cow(m)
+print(m)
 '''
+
+import Wireless_Particle_Filter as PF
+count=sys.argv[2]
+final_position=PF.calculate(dict,count)
+
+
+
+#傳1.這次預測的位置 2.各候選位置的得票數  3.(weight_map) 給particle filter
+#particle filter 回傳1.final position  2.當下的weight_map   
+#把final position給server   
 # print(k_top_similarity)
 # print(voter)
 
@@ -185,4 +195,5 @@ for i in range(len(voter)):
 predict_label.append(max(voter, key=voter.count))  # 票票等值
 # predict_label.append(vote.index(max(vote))) # 票票不等值 similarity 為權重
 #print("Ground Truth :", Wireless_Test_row_label)
-print("predict_label :", max(voter, key=voter.count))
+print("predict position :", max(voter, key=voter.count))
+print("final position:",final_position)

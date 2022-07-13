@@ -54,7 +54,7 @@ var clientHandler = function (socket) {
     beacon_int = parseInt(numStr);
     Rssi_int = parseInt(Rssi);
     console.log(beacon_int, Rssi_int);
-    Rssi_int = (Rssi_int + 95) / (-36 + 95);
+    Rssi_int = (Rssi_int + 101) / (-46 + 101);
     if (isNaN(Rssi_int)) {
       console.log(beacon_int);
       console.log("NAN");
@@ -72,7 +72,7 @@ var clientHandler = function (socket) {
       //console.log(Beacon_RSSi);
       //console.log(count);
       //if (count == 6) {
-      exec('python' + ' ' + filename + ' ' + Beacon_RSSi, function (err, stdout, stderr) {
+      exec('python' + ' ' + filename + ' ' + Beacon_RSSi + '' + count, function (err, stdout, stderr) {
         if (err) {
           console.log('stderr', err);
         }
@@ -88,7 +88,7 @@ var clientHandler = function (socket) {
       //count = 0;
 
       //}
-
+      count++;
     }
 
 
