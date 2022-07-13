@@ -116,8 +116,8 @@ predict_label = []
 
 # Wireless_Test = pd.read_csv(
 #    join(f'./walk_data/wireless_fingerprint_avg_10_7_beacon_rate_10.csv'))
-#Wireless_Test = {'Beacon_1': 0.594202899, 'Beacon_2': 0.710144928, 'Beacon_3': 0.260869565,
-#               'Beacon_4': 0.449275362, 'Beacon_5': 0.275362319,  'Beacon_7': 0.333333333, }
+Wireless_Test = {'Beacon_1': 0.594202899, 'Beacon_2': 0.710144928, 'Beacon_3': 0.260869565,
+              'Beacon_4': 0.449275362, 'Beacon_5': 0.275362319,  'Beacon_7': 0.333333333, }
 
 args=str(sys.argv[1])
 Wireless_Test=args.replace("q","\"")
