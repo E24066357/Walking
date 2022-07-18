@@ -2,7 +2,7 @@ from ctypes import *
 import random
 from os import listdir
 from os.path import isfile, isdir, join
-from socket import PF_CAN
+#from socket import PF_CAN
 import time
 from queue import Queue
 from collections import defaultdict
@@ -74,8 +74,8 @@ def similarity(hash1_, hash2_):
 # Wireless Train Hashing
 name_type = 'beacon'
 wireless_path = f'./walk_data/'
-Wireless_Train = pd.read_csv(join(wireless_path, 'wireless_training_set.csv'))
-
+#Wireless_Train = pd.read_csv(join(wireless_path, 'wireless_training_set.csv'))
+Wireless_Train = pd.read_csv(join(wireless_path, 'wireless_training_change.csv'))
 list_of_Wireless_Train_hash = []
 train_label = []
 #print(Wireless_Train.shape)
@@ -116,12 +116,12 @@ predict_label = []
 
 
 
-Wireless_Test = {'Beacon_1': 0.594202899, 'Beacon_2': 0.710144928, 'Beacon_3': 0.260869565,
-             'Beacon_4': 0.449275362, 'Beacon_5': 0.275362319,  'Beacon_7': 0.333333333, }
+#Wireless_Test = {'Beacon_1': 0.594202899, 'Beacon_2': 0.710144928, 'Beacon_3': 0.260869565,
+#            'Beacon_4': 0.449275362, 'Beacon_5': 0.275362319,  'Beacon_7': 0.333333333, }
 
-#args=str(sys.argv[1])
-#Wireless_Test=args.replace("q","\"")
-#Wireless_Test=json.loads(Wireless_Test)
+args=str(sys.argv[1])
+Wireless_Test=args.replace("q","\"")
+Wireless_Test=json.loads(Wireless_Test)
 
 Wireless_Test_hash = np.array([])
 for beacon_id, RSSI in Wireless_Test.items():
@@ -170,16 +170,11 @@ for k in range(len(list_of_Wireless_Train_hash)):
 dict={}
 for key in voter:
     dict[key]=dict.get(key,0)+1
-print("aa")
-'''
-m=0
-import imptest as im
-m=im.cow(m)
-print(m)
-'''
 
+import os
 import Wireless_Particle_Filter as PF
-count=sys.argv[2]
+
+count=int(sys.argv[2])
 final_position=PF.calculate(dict,count)
 
 
@@ -195,5 +190,5 @@ final_position=PF.calculate(dict,count)
 predict_label.append(max(voter, key=voter.count))  # 票票等值
 # predict_label.append(vote.index(max(vote))) # 票票不等值 similarity 為權重
 #print("Ground Truth :", Wireless_Test_row_label)
-print("predict position :", max(voter, key=voter.count))
+#print("predict position :", max(voter, key=voter.count))
 print("final position:",final_position)

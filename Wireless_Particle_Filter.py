@@ -10,7 +10,7 @@ import statistics
 from collections import Counter
 import pandas as pd
 import os
-import Hashing_KNN as HK
+#import Hashing_KNN as HK
 
 
 os.chdir('C:\\Master_Code_92589')
@@ -149,7 +149,7 @@ def add_weight(particle_weight_map, pos, particle_num, alpha, c, spread=3):
     num = LR_to_Table(pos)
     for direction in range(4):
         particle_weight_map = add_weight_dir(
-            particle_weight_map, pos, direction, alpha * particle_num)
+            particle_weight_map, num, direction, alpha * particle_num)
     #
 
     #
@@ -169,7 +169,7 @@ def add_weight(particle_weight_map, pos, particle_num, alpha, c, spread=3):
 
         for i in range(spread):
             for neighbor_pos in neighbor_list[i]:
-                if table[neighbor_pos[0]][neighbor_pos[1]] != 0:
+                if neighbor_pos in position_list:
                     for direction in range(4):
                         particle_weight_map = add_weight_dir(
                             particle_weight_map, neighbor_pos, direction, parameter_list[i] * particle_num)
@@ -202,13 +202,13 @@ def euclidean_distance(p1, p2):
 
 def avg_normalization(particle_weight_map_i):
     w_sum = 0
-    for i in particle_weight_map_i.shape[0]:  # ?????
-        for j in particle_weight_map_i.shape[1]:
+    for i in range(particle_weight_map_i.shape[0]):  # ?????
+        for j in range(particle_weight_map_i.shape[1]):
             for d in range(4):
                 w_sum += particle_weight_map_i[i][j][d]
 
-    for i in particle_weight_map_i.shape[0]:
-        for j in particle_weight_map_i.shape[1]:
+    for i in range(particle_weight_map_i.shape[0]):
+        for j in range(particle_weight_map_i.shape[1]):
             for d in range(4):
                 particle_weight_map_i[i][j][d] /= w_sum
 
@@ -259,9 +259,7 @@ def particle_move(particle_weight_map):
     return new_map
 '''
 
-#HK.max(voter, key=voter.count)
-# HK.dict
-# HK.particle_weight_map
+
 
 
 def calculate(knn_candidates, i):
@@ -281,14 +279,13 @@ def calculate(knn_candidates, i):
 
     if i == 0:  # if 第一個位置 (是特例，沒有前一個位置)
         # 將該位置候選人以票數做 weight, 更新 partcle weight
+        #print("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
         particle_weight_map = np.zeros((13, 35, 4))
         particle_weight_map = proportion_init(particle_weight_map, p_count_knn)
         # 每一輪預測KNN的參考位置 ( all 候選人 )----->[i]放 一個list("1":"5票" "2":6票).....?
         candidate_list = list(knn_candidates.keys())
-
         # 每一輪預測 KNN 的參考位置的次數 ( all 候選人票數 )
         candidate_vote_list = list(knn_candidates.values())
-
         all_vote = sum(candidate_vote_list)  # 總票數
 
         # 由得票數設定 weight
@@ -312,9 +309,10 @@ def calculate(knn_candidates, i):
         particle_weight_map = normalization(particle_weight_map)
         # 想辦法把map存起來
         np.save('particle_weight_map', particle_weight_map)
-        return max_pos
-
+        finalpos=pos_to_final(max_pos)
+        return finalpos
     else:
+        #print("PPPPPP")
         particle_weight_map = np.load('particle_weight_map.npy')
         for pos in position_list:
             for d in range(4):
@@ -347,7 +345,8 @@ def calculate(knn_candidates, i):
         particle_weight_map = normalization(particle_weight_map)
         # 想辦法把map存起來
         np.save('particle_weight_map', particle_weight_map)
-        return max_pos
+        finalpos=pos_to_final(max_pos)
+        return finalpos
 
 
 # 給 max_pos 和 particle_weight_map回去
@@ -355,8 +354,19 @@ def calculate(knn_candidates, i):
 # 把全是數字的pos變回有LR的final position  [6,16]->606L
 def pos_to_final(max_pos):
     if(max_pos[1] % 3 == 1):
-        final_pos = str(max_pos[1]/3+1)+'-'+str(max_pos[0])+'L'
+        if(max_pos[0]<10):
+            final_pos = str(max_pos[1]//3+1)+'0'+str(max_pos[0])+'L'
+        else:
+            final_pos = str(max_pos[1]//3+1)+str(max_pos[0])+'L' 
     elif(max_pos[1] % 3 == 0):
-        final_pos = str(max_pos[1]/3)+'-'+str(max_pos[0])+'R'
+        if(max_pos[0]<10):
+            final_pos = str(max_pos[1]//3)+'0'+str(max_pos[0])+'R'
+        else:
+            final_pos = str(max_pos[1]//3)+str(max_pos[0])+'R' 
     else:
-        final_pos = str(max_pos[1]/3+1)+'-'+str(max_pos[0])
+        if(max_pos[0]<10):
+            final_pos = str(max_pos[1]//3+1)+'0'+str(max_pos[0])
+        else:
+            final_pos = str(max_pos[1]//3+1)+str(max_pos[0])
+    
+    return final_pos
