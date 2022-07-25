@@ -6,20 +6,7 @@ var exec = require('child_process').exec;
 var arg1 = 'hello';
 var arg2 = 'world';
 var filename = 'Hashing_KNN.py'
-//var filename = 'test.py'
-//test
 
-/*
-exec('python' + ' ' + filename + ' ' + arg1 + ' ' + arg2, function (err, stdout, stderr) {
-  if (err) {
-    console.log('stderr', err);
-  }
-  if (stdout) {
-    console.log('output', stdout);
-  }
-
-});
-*/
 
 
 function full(Array) {
@@ -54,7 +41,7 @@ var clientHandler = function (socket) {
     beacon_int = parseInt(numStr);
     Rssi_int = parseInt(Rssi);
     console.log(beacon_int, Rssi_int);
-    Rssi_int = (Rssi_int + 101) / (-46 + 101);
+    Rssi_int = (Rssi_int + 101) / (-48 + 101);
     if (isNaN(Rssi_int)) {
       console.log(beacon_int);
       console.log("NAN");
@@ -83,11 +70,9 @@ var clientHandler = function (socket) {
     }
 
 
-    //console.log("beacon_id:", beacon_id, "Rssi:", Rssi)
+
     //客戶向server傳送訊息
     socket.write(toclient);
-    //console.log("k");
-    //socket.write('server received\n');
   });
 
   //當對方的連線斷開以後的事件

@@ -18,8 +18,6 @@ import math
 from statsmodels.tsa.api import ExponentialSmoothing, Holt, SimpleExpSmoothing
 import sys
 import shlex
-#a=sys.argv[1]
-#print("yy",a,"yy")
 freewalk = [
     'freewalk_1',
 ]
@@ -35,8 +33,6 @@ def signed_encode(hash_):
 
 
 def text_hash(beacon_id, RSSI):
-    # print(type(beacon_id))
-    # print(type(RSSI))
     # if walk_list == freewalk :
     RSSI_2 = 3*RSSI*RSSI + 2*RSSI*RSSI*RSSI + 1*RSSI*RSSI*RSSI*RSSI  # freewalk
     # if walk_list == scripted_walk :
@@ -63,8 +59,6 @@ def text_hash(beacon_id, RSSI):
 
 
 def similarity(hash1_, hash2_):
-    # print(hash1_)
-    # print(hash2_)
     # print(abs(hash1_-hash2_).sum())
     #print('len of hash1:',len(hash1_))
     # return 1 - abs(hash1_-hash2_).sum()/len(hash1_)
@@ -74,12 +68,9 @@ def similarity(hash1_, hash2_):
 # Wireless Train Hashing
 name_type = 'beacon'
 wireless_path = f'./walk_data/'
-#Wireless_Train = pd.read_csv(join(wireless_path, 'wireless_training_set.csv'))
-Wireless_Train = pd.read_csv(join(wireless_path, 'wireless_training_change.csv'))
+Wireless_Train = pd.read_csv(join(wireless_path, 'wireless_training_noLR.csv'))
 list_of_Wireless_Train_hash = []
 train_label = []
-#print(Wireless_Train.shape)
-#print(len(Wireless_Train))
 for i in range(len(Wireless_Train)):
     Wireless_Train_row = Wireless_Train.iloc[i].to_dict()
     Wireless_Train_row_label = Wireless_Train_row['label']
@@ -106,11 +97,7 @@ len_of_all_label = 0
 K = 45
 
 error_distri = [0]*16
-
-
 hash_similarity = []
-#list_of_Wireless_Train_hash_dic = list(Wireless_Train_hash_dic.values())
-
 test_label = []
 predict_label = []
 
@@ -133,26 +120,7 @@ for beacon_id, RSSI in Wireless_Test.items():
         Wireless_Test_hash = Wireless_Test_hash + hash_
 Wireless_Test_hash = signed_encode(Wireless_Test_hash)
 #print(Wireless_Test_hash)
-'''
-for j in range(len(Wireless_Test)):
-    # Device1
-    Wireless_Test_row = Wireless_Test.iloc[j].to_dict()
-    Wireless_Test_row_label = Wireless_Test_row['label']
-    test_label.append(Wireless_Test_row_label)
-    Wireless_Test_row.pop('label', None)
 
-    # device1 hash encode
-    Wireless_Test_hash = np.array([])
-    for beacon_id, RSSI in Wireless_Test_row.items():
-        hash_ = text_hash(beacon_id, RSSI)
-        if len(Wireless_Test_hash) < 1:
-            Wireless_Test_hash = hash_
-        else:
-            Wireless_Test_hash = Wireless_Test_hash + hash_
-# Device1
-
-    Wireless_Test_hash = signed_encode(Wireless_Test_hash)
-'''
 # 找出 Top K 個像的
 k_top_similarity = [0.0]*K
 voter = [0.0]*K
@@ -163,7 +131,7 @@ for k in range(len(list_of_Wireless_Train_hash)):
         k_top_similarity[k_top_similarity.index(
             min(k_top_similarity))] = sim_
         voter[k_top_similarity.index(
-            min(k_top_similarity))] = train_label[k]
+            min(k_top_similarity))] = str(int(train_label[k]))
 
 
 
@@ -176,19 +144,64 @@ import Wireless_Particle_Filter as PF
 
 count=int(sys.argv[2])
 final_position=PF.calculate(dict,count)
+final_position_numbers = sum(c.isdigit() for c in final_position)
+wireless_path = f'./walk_data/'
+#用LR的set來做KNN  判斷是在這個位置的 中間 左 右
+
+Wireless_Train_LR = pd.read_csv(join(wireless_path, 'wireless_training_LR.csv'))
+list_of_Wireless_Train_LR_hash = []
+train_label_LR = []
+for i in range(len(Wireless_Train_LR)):
+    Wireless_Train_LR_row = Wireless_Train_LR.iloc[i].to_dict()
+    Wireless_Train_LR_label = Wireless_Train_LR_row['label']
+    numbers = sum(c.isdigit() for c in Wireless_Train_LR_label)
+    if(final_position_numbers==numbers and final_position in Wireless_Train_LR_label ):  #605的話  查看set中的 605L 605 605R
+        train_label_LR.append(Wireless_Train_LR_label)
+        Wireless_Train_LR_row.pop('label', None)
+        # device1 hash encode
+        Wireless_Train_LR_hash = np.array([])
+        for beacon_id, RSSI in Wireless_Train_LR_row.items():
+            hash_ = text_hash(beacon_id, RSSI)  # 每一個RSSI值被hash成一個大小512的array
+            if len(Wireless_Train_LR_hash) < 1:
+                Wireless_Train_LR_hash = hash_
+            else:
+                # 每個RSSI hash完的512array 8個array數值疊加起來(大小還是512)
+                Wireless_Train_LR_hash = Wireless_Train_LR_hash + hash_
+
+        Wireless_Train_LR_hash = signed_encode(Wireless_Train_LR_hash)
+        list_of_Wireless_Train_LR_hash.append(Wireless_Train_LR_hash)
+
+k_top_similarity = [0.0]*K
+voter = [0.0]*K
 
 
+for k in range(len(list_of_Wireless_Train_LR_hash)):
+    sim_ = similarity(
+        list_of_Wireless_Train_LR_hash[k], Wireless_Test_hash)
+    if sim_ > (min(k_top_similarity)):
+        k_top_similarity[k_top_similarity.index(
+            min(k_top_similarity))] = sim_
+        voter[k_top_similarity.index(
+            min(k_top_similarity))] = train_label_LR[k]
 
-#傳1.這次預測的位置 2.各候選位置的得票數  3.(weight_map) 給particle filter
-#particle filter 回傳1.final position  2.當下的weight_map   
-#把final position給server   
-# print(k_top_similarity)
-# print(voter)
-
-#writer.writerow([Wireless_Test_row_label, voter])
 
 predict_label.append(max(voter, key=voter.count))  # 票票等值
 # predict_label.append(vote.index(max(vote))) # 票票不等值 similarity 為權重
-#print("Ground Truth :", Wireless_Test_row_label)
-#print("predict position :", max(voter, key=voter.count))
-print("final position:",final_position)
+print("predict position :", max(voter, key=voter.count))
+if(count==0):
+    accuracy=[]
+    accuracy.append(max(voter, key=voter.count))
+    np.save('accuracy', accuracy)
+else:
+    accuracy = np.load('accuracy.npy')
+    accuracy=np.append(accuracy,(max(voter, key=voter.count)))
+    np.save('accuracy', accuracy)
+    
+    
+if(count==5):
+    result={}
+    for key in accuracy:
+        result[key]=result.get(key,0)+1
+    print(result)
+#print("final position:",final_position)
+#print("predict:",final_position)
